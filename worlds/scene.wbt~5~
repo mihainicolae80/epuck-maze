@@ -1,0 +1,115 @@
+#VRML_SIM V6.0 utf8
+WorldInfo {
+  info [
+    "Description"
+    "Author: first name last name <e-mail>"
+    "Date: DD MMM YYYY"
+  ]
+}
+Viewpoint {
+  orientation 0.901938 0.423116 0.0864856 5.5042
+  position -0.259848 0.697106 0.675438
+}
+Background {
+  skyColor [
+    0.4 0.7 1
+  ]
+}
+PointLight {
+  location 0 0.3 0
+}
+DEF FLOOR Solid {
+  translation -0.5 0 -0.5
+  children [
+    Shape {
+      geometry ElevationGrid {
+        color Color {
+          color [
+            0.803922 0.494118 0.294118
+            0.745098 0.592157 0.121569
+          ]
+        }
+        colorPerVertex FALSE
+        xDimension 11
+        xSpacing 0.1
+        zDimension 11
+        zSpacing 0.1
+      }
+    }
+  ]
+  boundingObject Transform {
+    translation 0.5 0 0.5
+    children [
+      Plane {
+      }
+    ]
+  }
+}
+EPuck {
+}
+DEF wall1 Solid {
+  translation -0.477869 0.075 -0.00430349
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0 0.607843 0
+          emissiveColor 0 0.756863 0
+        }
+      }
+      geometry Box {
+        size 0.05 0.15 1
+      }
+    }
+  ]
+}
+DEF wall2 Solid {
+  translation 0.474949 0.075 -0.0053045
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0 0.607843 0
+          emissiveColor 0 0.756863 0
+        }
+      }
+      geometry Box {
+        size 0.05 0.15 1
+      }
+    }
+  ]
+}
+DEF wall3 Solid {
+  translation 0.0159994 0.075 0.469923
+  rotation 0 1 0 1.5708
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0 0.607843 0
+          emissiveColor 0 0.756863 0
+        }
+      }
+      geometry Box {
+        size 0.05 0.15 1
+      }
+    }
+  ]
+}
+DEF wall4 Solid {
+  translation -0.0023526 0.075 -0.488583
+  rotation 0 1 0 1.5708
+  children [
+    Shape {
+      appearance Appearance {
+        material Material {
+          diffuseColor 0 0.607843 0
+          emissiveColor 0 0.756863 0
+        }
+      }
+      geometry Box {
+        size 0.05 0.15 1
+      }
+    }
+  ]
+}
