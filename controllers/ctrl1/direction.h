@@ -27,7 +27,7 @@
 #define TA_STATE_ROTATE    2
 
 #define CTOI_TRIGGER  100
-#define CTOI_DISTANCE 400
+#define CTOI_DISTANCE 200
 
 using namespace webots;
 
@@ -43,9 +43,9 @@ enum Machine_States{
 
 class VirtualEncoder{
 public:
-	void reset_at_values(long  left,long right);
-	long get_left(long left);
-	long get_right(long right);
+	void reset(DifferentialWheels &difw);
+	long get_left(DifferentialWheels &difw);
+	long get_right(DifferentialWheels &difw);
 
 private:
 	long _left,_right;

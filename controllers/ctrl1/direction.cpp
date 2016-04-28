@@ -1,17 +1,17 @@
 #include "direction.h"
 
 
-void VirtualEncoder::reset_at_values(long  left,long right){
-	_left  = left;
-	_right = right;
+void VirtualEncoder::reset(DifferentialWheels &difw){
+	_left  = difw.getLeftEncoder();
+	_right = difw.getRightEncoder();
 }
 
-long VirtualEncoder::get_left(long left){
-	return left - _left;
+long VirtualEncoder::get_left(DifferentialWheels &difw){
+	return difw.getLeftEncoder() - _left;
 }
 
-long VirtualEncoder::get_right(long right){
-	return right - _right;
+long VirtualEncoder::get_right(DifferentialWheels &difw){
+	return difw.getRightEncoder() - _right;
 }
 
 DIRECTION::DIRECTION(){
@@ -24,7 +24,7 @@ DIRECTION::DIRECTION(){
   diff_wheels.setEncoders(0,0);
 
 
-	ve_atintersection.reset_at_values(0,0);
+	ve_atintersection.reset(diff_wheels);
 
 	int i;
 	char ds_name[] = "ps0";
@@ -147,22 +147,20 @@ void DIRECTION::wall_repeller(){
 		if(!wall_on_left || !wall_on_right){
 				wr_delta = 0;
 
-				if(ve_atintersection.get_left(diff_wheels.getLeftEncoder())
+				if(ve_atintersection.get_left(diff_wheels)
 			     > CTOI_TRIGGER
 					 &&
-					 ve_atintersection.get_right(diff_wheels.getRightEncoder())
+					 ve_atintersection.get_right(diff_wheels)
 	 			     > CTOI_TRIGGER
 					){
 						 curr_state = STATE_MOVE_TO_INTERSECT_CENTER;
-						 ve_to_it_center.reset_at_values(diff_wheels.getRightEncoder()
-						 																 ,diff_wheels.getLeftEncoder());
+						 ve_to_it_center.reset(diff_wheels);
 					}
 		}
 		//Daca merge pe un hol
 		else{
 			//reseteaza encoderele
-			ve_atintersection.reset_at_values(diff_wheels.getLeftEncoder()
-			  															  ,diff_wheels.getRightEncoder());
+			ve_atintersection.reset(diff_wheels);
 		}
 
 		//if(somevalue){
@@ -235,8 +233,8 @@ void DIRECTION::run(){
 		update_ds();
 		wall_repeller();
 
-		std::cout << "left=" << ve_atintersection.get_left(diff_wheels.getLeftEncoder()) << std::endl;
-		std::cout << "right=" << ve_atintersection.get_right(diff_wheels.getRightEncoder()) << std::endl;
+		std::cout << "left=" << ve_atintersection.get_left(diff_wheels) << std::endl;
+		std::cout << "right=" << ve_atintersection.get_right(diff_wheels) << std::endl;
 
 		//Compute total modifier
 		total_delta_right =  - wr_delta;
@@ -247,10 +245,10 @@ void DIRECTION::run(){
 		total_delta_left  = 0;
 		total_delta_right = 0;
 
-		if(ve_to_it_center.get_left(diff_wheels.getLeftEncoder())
+		if(ve_to_it_center.get_left(diff_wheels)
 			 > CTOI_DISTANCE
 		   ||
-			 ve_to_it_center.get_right(diff_wheels.getRightEncoder())
+			 ve_to_it_center.get_right(diff_wheels)
 	 			 > CTOI_DISTANCE
 		 ){
 			 curr_state = STATE_STOP;
@@ -258,7 +256,7 @@ void DIRECTION::run(){
 	}
 	else if(curr_state == STATE_ROTATE){
 
-		
+
 	}
 	else if(curr_state == STATE_STOP){
 		std::cout << "state=stopped" << std::endl;
