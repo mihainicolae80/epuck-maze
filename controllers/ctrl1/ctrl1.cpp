@@ -34,14 +34,14 @@ class ctrl1 : public Robot {
   public:
 
     // ctrl1 constructor
-    ctrl1(): Robot() {
+    ctrl1(): Robot() { 
 
     }
 
     // ctrl1 destructor
     virtual ~ctrl1() {
 
- 
+
     }
 
 

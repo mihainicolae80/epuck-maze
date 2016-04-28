@@ -2,29 +2,36 @@
 
 
 void VirtualEncoder::reset(DifferentialWheels &difw){
-	_left  = difw.getLeftEncoder();
-	_right = difw.getRightEncoder();
+	_left  = _left_old  = difw.getLeftEncoder();
+	_right = _right_old = difw.getRightEncoder();
 }
 
 long VirtualEncoder::get_left(DifferentialWheels &difw){
+
+	//Error
+	if(_left - _left_old > 300)
+		_left = _left_old;
+
 	return difw.getLeftEncoder() - _left;
 }
 
 long VirtualEncoder::get_right(DifferentialWheels &difw){
+
+	//Error
+	if(_right - _right_old > 300)
+		_right = _right_old;
+
 	return difw.getRightEncoder() - _right;
 }
 
 DIRECTION::DIRECTION(){
-
-	curr_state = STATE_FOLLOW_CORIDOR;
 
 	//Set wheels speed
 	diff_wheels.setSpeed(0,0);
 	diff_wheels.enableEncoders(TIME_STEP);
   diff_wheels.setEncoders(0,0);
 
-
-	ve_atintersection.reset(diff_wheels);
+	ve_node_to_node.reset(diff_wheels);
 
 	int i;
 	char ds_name[] = "ps0";
@@ -47,6 +54,10 @@ DIRECTION::DIRECTION(){
 	ds_right_10 = ds_right_45 = ds_right_90 = 0;
 
 	total_delta_left = total_delta_right = 0;
+
+	switch_state(STATE_FOLLOW_CORIDOR); //STATE_FOLLOW_CORIDOR;
+	direction_rotate = DIR_CLK;
+	// TODO add rotate times
 }
 
 DIRECTION::~DIRECTION(){
@@ -147,20 +158,16 @@ void DIRECTION::wall_repeller(){
 		if(!wall_on_left || !wall_on_right){
 				wr_delta = 0;
 
-				if(ve_atintersection.get_left(diff_wheels)
-			     > CTOI_TRIGGER
-					 &&
-					 ve_atintersection.get_right(diff_wheels)
-	 			     > CTOI_TRIGGER
+				if(ve_aux.get_left(diff_wheels) > CTOI_TRIGGER
+					 && ve_aux.get_right(diff_wheels) > CTOI_TRIGGER
 					){
-						 curr_state = STATE_MOVE_TO_INTERSECT_CENTER;
-						 ve_to_it_center.reset(diff_wheels);
+						 switch_state(STATE_MOVE_TO_INTERSECT_CENTER);
 					}
 		}
 		//Daca merge pe un hol
 		else{
-			//reseteaza encoderele
-			ve_atintersection.reset(diff_wheels);
+			//reseteaza encoderul auxiliar
+			ve_aux.reset(diff_wheels);
 		}
 }
 
@@ -222,36 +229,56 @@ void DIRECTION::run(){
 		update_ds();
 		wall_repeller();
 
-		std::cout << "left=" << ve_atintersection.get_left(diff_wheels) << std::endl;
-		std::cout << "right=" << ve_atintersection.get_right(diff_wheels) << std::endl;
+		std::cout << "left=" << ve_aux.get_left(diff_wheels) << std::endl;
+		std::cout << "right=" << ve_aux.get_right(diff_wheels) << std::endl;
 
 		//Compute total modifier
 		total_delta_right =  - wr_delta;
 		total_delta_left  =  + wr_delta;
 	}
 	else if(curr_state == STATE_MOVE_TO_INTERSECT_CENTER){
-		std::cout << "state=to_center" << std::endl;
+		std::cout << "state=blind_to_center" << std::endl;
 		total_delta_left  = 0;
 		total_delta_right = 0;
 
-		if(ve_to_it_center.get_left(diff_wheels)
-			 > CTOI_DISTANCE
-		   ||
-			 ve_to_it_center.get_right(diff_wheels)
-	 			 > CTOI_DISTANCE
-		 ){
-			 curr_state = STATE_STOP;
+		if(ve_aux.get_left(diff_wheels) > CTOI_DISTANCE
+		   || ve_aux.get_right(diff_wheels) > CTOI_DISTANCE){
+
+			 switch_state(STATE_ROTATE);
+			 ve_rotate.reset(diff_wheels);
 		 }
 	}
 	else if(curr_state == STATE_ROTATE){
+		std::cout << "state=rotate" << std::endl;
 
+		total_delta_left = direction_rotate*-ROTATE_SPEED -BASE_SPEED;
+		total_delta_right = direction_rotate*ROTATE_SPEED -BASE_SPEED;
 
+		if( abs(ve_rotate.get_right(diff_wheels)) > ROTATE_VAL ){
+				switch_state(STATE_MOVE_TO_CORIDOR);
+		}
 	}
 	else if(curr_state == STATE_STOP){
 		std::cout << "state=stopped" << std::endl;
 		total_delta_left  = -BASE_SPEED;
 		total_delta_right = -BASE_SPEED;
 		//TODO Mai simplu daca se cal viteza direct?
+	}
+	else if(curr_state == STATE_MOVE_TO_CORIDOR){
+		std::cout << "state=blind_to_coridor" << std::endl;
+		total_delta_left  = 0;
+		total_delta_right = 0;
+
+		std::cout << "abs_left=" << diff_wheels.getLeftEncoder() << std::endl;
+		std::cout << "abs_right=" << diff_wheels.getRightEncoder() << std::endl;
+		std::cout << "left=" << ve_aux.get_left(diff_wheels) << std::endl;
+		std::cout << "right=" << ve_aux.get_right(diff_wheels) << std::endl;
+
+
+		if(ve_aux.get_left(diff_wheels) > ITOC_DISTANCE
+		   || ve_aux.get_right(diff_wheels) > ITOC_DISTANCE ){
+			 switch_state(STATE_FOLLOW_CORIDOR);
+		 }
 	}
 
 
@@ -260,4 +287,11 @@ void DIRECTION::run(){
 	speed_right = BASE_SPEED + total_delta_right;
 	speed_left  = BASE_SPEED + total_delta_left;
 	diff_wheels.setSpeed(speed_left,speed_right);
+}
+
+
+
+void DIRECTION::switch_state(Machine_States next_state){
+	curr_state = next_state;
+	ve_aux.reset(diff_wheels);
 }
