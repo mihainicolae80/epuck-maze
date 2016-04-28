@@ -162,17 +162,6 @@ void DIRECTION::wall_repeller(){
 			//reseteaza encoderele
 			ve_atintersection.reset(diff_wheels);
 		}
-
-		//if(somevalue){
-			//std::cout<<"left_enc="<<diff_wheels.getLeftEncoder()<<std::endl;
-			//std::cout<<"right_enc="<<diff_wheels.getRightEncoder()<<std::endl;
-		//}
-
-		//if(!wall_on_left)
-		//	std::cout << "NO_WALL LEFT" << counttime++ << std::endl;
-		//if(!wall_on_right)
-		//	std::cout << "NO_WALL RIGHT"<< counttime++ << std::endl;
-
 }
 
 bool DIRECTION::turnarround(){
