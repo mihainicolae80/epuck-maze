@@ -3,6 +3,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
+#include "graph.h"
+#include <ctime>
 
 #define ON              1
 #define OFF             0
@@ -27,25 +29,34 @@
 #define WR_C_10   	   150//390 //0.09
 #define WR_C_45        150//390 //0.07
 #define WR_C_90        150//390 //0.07
-
+ 
 //Turnaround Module Constants
 #define TA_STATE_DONOTHING 0
 #define TA_STATE_BACKOFF   1
 #define TA_STATE_ROTATE    2
 
 #define CTOI_TRIGGER  100
-#define CTOI_DISTANCE 200
-#define ITOC_DISTANCE 500
+#define CTOI_DISTANCE 150 //200
+#define ITOC_DISTANCE 400 //500
+
+#define ANGLE_0   0
+#define ANGLE_90  1
+#define ANGLE_180 2
 
 using namespace webots;
 
 #define BASE_SPEED    300
+
+int constrain(int x);
+int get_rotate_direction(int curr, int goal);
+int get_rotate_times(int curr, int goal);
 
 enum Machine_States{
 	STATE_FOLLOW_CORIDOR,
 	STATE_MOVE_TO_INTERSECT_CENTER,
 	STATE_MOVE_TO_CORIDOR,
 	STATE_INTERSECTION,
+	STATE_SIGNAL,
 	STATE_ROTATE,
 	STATE_STOP
 };
@@ -81,14 +92,24 @@ public:
 	void switch_state(Machine_States next_state);
 
 private:
+	//timing
+	time_t timer;
+
+	//Graph
+	Graph graph;
+	int x, y;
+	dir orientation;
+	Node *curr_node;
 	//States
 	Machine_States curr_state;
 
 	unsigned long long counttime;
 	int speed_left,speed_right;
 	int direction_rotate;
-	
-	
+	int times_rotate;
+	int angle_rotate;
+
+
 	//SENSORS
 	double wh_delta;
 	double wr_delta;
@@ -97,6 +118,7 @@ private:
 	VirtualEncoder ve_aux;
 	VirtualEncoder ve_node_to_node;
 	VirtualEncoder ve_rotate;
+
 
 	//ACTUATORS
 	double ds_left_10,ds_left_45,ds_left_90;

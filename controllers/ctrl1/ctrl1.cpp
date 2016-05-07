@@ -10,7 +10,6 @@
 #include <webots/Robot.hpp>
 #include <iostream>
 
-#include "map.h"
 #include "direction.h"
 
 

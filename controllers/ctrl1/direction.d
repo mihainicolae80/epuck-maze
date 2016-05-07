@@ -18,4 +18,5 @@ direction.o: direction.cpp direction.h \
  C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/Pen.hpp \
  C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/Receiver.hpp \
  C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/TouchSensor.hpp \
- C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/Servo.hpp
+ C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/Servo.hpp \
+ graph.h

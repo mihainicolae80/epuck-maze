@@ -1,5 +1,83 @@
 #include "direction.h"
 
+/*
+		TODO
+		-Distanta minima pana la cel mai apropiat nod neparcurs
+		-SIGNAL_STATE
+		-Output-uri pt graf
+		-Detectare daca un drum este deschis
+*/
+
+int constrain(int x){
+
+	 if(x > 1000)
+		return  1000;
+	 else
+	 if(x < -1000)
+	 	return -1000;
+
+		return x;
+}
+
+//TODO verifica daca este ok
+int get_rotate_direction(int curr, int goal){
+	if(abs(curr - goal) == 2){
+		//Irelevant
+		return DIR_CLK;
+	}
+	else if(curr - goal == 0){
+		return DIR_CLK;
+	}
+	else {
+		if(curr == DIR_NORTH){
+			if(goal == DIR_EAST){
+				return DIR_CLK;
+			}
+			else{
+				return DIR_CONTCLK;
+			}
+		}
+		else if(curr == DIR_EAST){
+			if(goal == DIR_SOUTH){
+				return DIR_CLK;
+			}
+			else{
+				return DIR_CONTCLK;
+			}
+		}
+		else if(curr == DIR_SOUTH){
+			if(goal == DIR_WEST){
+				return DIR_CLK;
+			}
+			else{
+				return DIR_CONTCLK;
+			}
+		}
+		else if(curr == DIR_WEST){
+			if(goal == DIR_NORTH){
+				return DIR_CLK;
+			}
+			else{
+				return DIR_CONTCLK;
+			}
+		}
+	}
+
+	std::cout << "Error: Invalid direction" << std::endl;
+	return DIR_NORTH;
+}
+int get_rotate_times(int curr, int goal){
+	if(abs(curr - goal) == 2){
+		//Irelevant
+		return ANGLE_180;
+	}
+	else if(curr - goal == 0){
+		return ANGLE_0;
+	}
+	else {
+		return ANGLE_90;
+	}
+}
 
 void VirtualEncoder::reset(DifferentialWheels &difw){
 	_left  = _left_old  = difw.getLeftEncoder();
@@ -31,12 +109,16 @@ DIRECTION::DIRECTION(){
 	diff_wheels.enableEncoders(TIME_STEP);
   diff_wheels.setEncoders(0,0);
 
+	orientation = DIR_NORTH;
+
 	ve_node_to_node.reset(diff_wheels);
 
 	int i;
 	char ds_name[] = "ps0";
 
 	counttime = 0;
+	x = 0;
+	y = 0;
 
 	//Init distance sensors
 	dist_sensors = new DistanceSensor* [NR_DIST_SENSORS];
@@ -57,7 +139,7 @@ DIRECTION::DIRECTION(){
 
 	switch_state(STATE_FOLLOW_CORIDOR); //STATE_FOLLOW_CORIDOR;
 	direction_rotate = DIR_CLK;
-	// TODO add rotate times
+	angle_rotate = ANGLE_90;
 }
 
 DIRECTION::~DIRECTION(){
@@ -254,7 +336,7 @@ void DIRECTION::run(){
 		total_delta_left = direction_rotate*-ROTATE_SPEED -BASE_SPEED;
 		total_delta_right = direction_rotate*ROTATE_SPEED -BASE_SPEED;
 
-		if( abs(ve_rotate.get_right(diff_wheels)) > ROTATE_VAL ){
+		if( abs(ve_rotate.get_right(diff_wheels)) > times_rotate * ROTATE_VAL ){
 				switch_state(STATE_MOVE_TO_CORIDOR);
 		}
 	}
@@ -282,10 +364,131 @@ void DIRECTION::run(){
 	}
 
 
+
+	/*
+
+		-Adauga un nod nou in graf sau o muchie
+		(nod nou, daca intersectia nu a mai fost vizitate
+		si muchie daca intersectia a mai fost vizitate)
+		-Determina in ce directie poate sa
+		mearga.
+		-Alege o directie
+
+	*/
+	else if(curr_state == STATE_INTERSECTION){
+
+		//Nu se deplaseaza
+		total_delta_left  = -BASE_SPEED;
+		total_delta_right = -BASE_SPEED;
+
+		//Actualizeaza valorile citit de la senzorul
+		//de distanta
+		update_ds();
+
+
+		//Node *lastnode = graph.get_last_node();
+
+		//Calculeaza distanta
+		int avg_dist = (ve_node_to_node.get_left(diff_wheels)
+									 + ve_node_to_node.get_right(diff_wheels))
+									 /2;
+
+
+		//Actualizeaza coordonatele
+		if(orientation == DIR_NORTH){
+			y -= avg_dist;
+		}
+		else if(orientation == DIR_SOUTH){
+			y += avg_dist;
+		}
+		else if(orientation == DIR_EAST){
+			x += avg_dist;
+		}
+		else if(orientation == DIR_WEST){
+			x -= avg_dist;
+		}
+
+		//Reset encodere virtuale
+		ve_node_to_node.reset(diff_wheels);
+
+		//TODO Detectare daca un drum este deschis
+		//Analizeaza pozitia curenta
+		
+		//TODO Fix
+		//curr_node = graph.on_intersection(x,y,orientation,false,false,false,false);
+
+		//Pregateste o decizie dupa semnalare
+		if(curr_node->open_on_dir[DIR_NORTH]
+		&& !curr_node->visited_on_dir[DIR_NORTH]){
+			direction_rotate = get_rotate_direction(orientation,DIR_NORTH);
+			times_rotate = get_rotate_times(orientation,DIR_NORTH);
+			orientation = DIR_NORTH;
+		}
+		else
+		if(curr_node->open_on_dir[DIR_SOUTH]
+		&& !curr_node->visited_on_dir[DIR_SOUTH]){
+			direction_rotate = get_rotate_direction(orientation,DIR_SOUTH);
+			times_rotate = get_rotate_times(orientation,DIR_SOUTH);
+			orientation = DIR_SOUTH;
+		}
+		else
+		if(curr_node->open_on_dir[DIR_EAST]
+		&& !curr_node->visited_on_dir[DIR_EAST]){
+			direction_rotate = get_rotate_direction(orientation,DIR_EAST);
+			times_rotate = get_rotate_times(orientation,DIR_EAST);
+			orientation = DIR_EAST;
+		}
+		else
+		if(curr_node->open_on_dir[DIR_WEST]
+		&& !curr_node->visited_on_dir[DIR_WEST]){
+			direction_rotate = get_rotate_direction(orientation,DIR_WEST);
+			times_rotate = get_rotate_times(orientation,DIR_WEST);
+			orientation = DIR_WEST;
+		}
+		else{
+			//TODO daca nodul curent a fost explorat in toate
+			//directile, se merge la cel mai apropiat nod care
+			//nu a fost explorat complet
+		}
+
+
+		//Semnalizeaza directile in care poate merge
+		switch_state(STATE_SIGNAL);
+		//Reseteaza timer
+		timer = time(NULL);
+	}
+	/*Semnalizeaza */
+	else if(curr_state == STATE_SIGNAL){
+		/*
+			 Pentru determinarea directiilor accesibile fizic
+			 si a celor vizitate:
+			 curr_node->open_on_dir[DIR_NORTH]
+			 curr_node->open_on_dir[DIR_SOUTH]
+			 curr_node->open_on_dir[DIR_EAST]
+			 curr_node->open_on_dir[DIR_WEST]
+			 curr_node->visited_on_dir[DIR_NORTH]
+			 curr_node->visited_on_dir[DIR_SOUTH]
+			 curr_node->visited_on_dir[DIR_EAST]
+			 curr_node->visited_on_dir[DIR_WEST]
+		*/
+
+		if(curr_node != NULL){
+			//TODO
+		}
+		else{
+			std::cout << "ERR: STATE_SIGNAL curr_node == NULL" << std::endl;
+		}
+
+
+		//Daca a stat in aceasta stare 2 secunde
+		if(time(NULL) - timer >= 2){
+			switch_state(STATE_ROTATE);
+		}
+	}
+
 	//Set speeds
-	//TODO Constrangere pt valori 0-1000
-	speed_right = BASE_SPEED + total_delta_right;
-	speed_left  = BASE_SPEED + total_delta_left;
+	speed_right = constrain(BASE_SPEED + total_delta_right);
+	speed_left  = constrain(BASE_SPEED + total_delta_left);
 	diff_wheels.setSpeed(speed_left,speed_right);
 }
 

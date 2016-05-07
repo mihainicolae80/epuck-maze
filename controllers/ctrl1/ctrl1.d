@@ -18,5 +18,6 @@ ctrl1.o: ctrl1.cpp \
  C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/Receiver.hpp \
  C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/TouchSensor.hpp \
  C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/Servo.hpp \
- map.h direction.h \
- C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/DifferentialWheels.hpp
+ direction.h \
+ C:\Program\ Files\ (x86)\Webots/include/controller/cpp/webots/DifferentialWheels.hpp \
+ graph.h
