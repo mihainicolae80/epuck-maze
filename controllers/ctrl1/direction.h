@@ -1,5 +1,6 @@
 #include <webots/DifferentialWheels.hpp>
 #include <webots/DistanceSensor.hpp>
+#include <webots/LED.hpp> // TODO~mod
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -13,10 +14,10 @@
 
 #define MAX_VAL       	  3900
 #define DS_TRASHOLD   		0.0
-#define DS_TRASHOLD_BIG   0.5
-#define ROTATE180_TRASHOLD 2.5
+#define DS_TRASHOLD_BIG   1.1
+#define DS_ROTATE180_TRIGGER 1.5
 
-#define ROTATE_VAL 260
+#define ROTATE_VAL 300
 #define ROTATE_SPEED 400
 
 #define DIR_CLK 1
@@ -26,22 +27,24 @@
 #define WH_C_45        100//270 //0.07
 #define WH_C_90        100//270 //0.07
 
-#define WR_C_10   	   150//390 //0.09
-#define WR_C_45        150//390 //0.07
-#define WR_C_90        150//390 //0.07
- 
+#define WR_C_10   	   50//150//390 //0.09
+#define WR_C_45        50//150//390 //0.07
+#define WR_C_90        50//150//390 //0.07
+
 //Turnaround Module Constants
 #define TA_STATE_DONOTHING 0
 #define TA_STATE_BACKOFF   1
 #define TA_STATE_ROTATE    2
 
-#define CTOI_TRIGGER  100
-#define CTOI_DISTANCE 150 //200
-#define ITOC_DISTANCE 400 //500
+#define CTOI_TRIGGER  50
+#define CTOI_DISTANCE 130 //200
+#define ITOC_DISTANCE 300 //500
 
 #define ANGLE_0   0
 #define ANGLE_90  1
 #define ANGLE_180 2
+
+#define NB_LEDS 8 // TODO~mod
 
 using namespace webots;
 
@@ -81,8 +84,13 @@ public:
 
 	void reset_modifiers();
 
+	// LED behavior
+	void set_all_leds_off();//TODO~mod
+
 	//Behaviors
 	void update_ds();
+	void identify_walls(bool &opennorth,bool &opensouth,
+											bool &openeast, bool &openwest);
 	void wall_hugger();
 	void wall_repeller();
 	bool turnarround();
@@ -93,7 +101,8 @@ public:
 
 private:
 	//timing
-	time_t timer;
+	time_t timer,timer_blink_led;
+  bool leds_on;
 
 	//Graph
 	Graph graph;
@@ -124,5 +133,6 @@ private:
 	double ds_left_10,ds_left_45,ds_left_90;
 	double ds_right_10, ds_right_45,ds_right_90;
 
+	LED **led;//TODO~mod
 	DifferentialWheels diff_wheels;
 };

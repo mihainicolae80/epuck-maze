@@ -17,7 +17,7 @@
 ### -----C++ Sources-----
 ###
 ### if your controller uses several C++ sources files:
- CPP_SOURCES = ctrl1.cpp direction.cpp map.cpp
+ CPP_SOURCES = ctrl1.cpp graph.cpp direction.cpp map.cpp 
 ###     or
 # CC_SOURCES = my_controller.cc my_clever_algo.cc my_gui.cc
 

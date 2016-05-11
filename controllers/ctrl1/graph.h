@@ -23,19 +23,21 @@ dir oposite_dir(dir direction);
 
 struct Node{
 
+  Node();
   Node(int x, int y);
 
- 
+
   long x, y;
   int nr;
   bool open_on_dir[4];
   bool visited_on_dir[4];
   //TODO nu ar fi mai bine cu un map ?
-  std::list<Node*> nighbours;
+  std::list<Node*> neighbours;
 };
 
 class Graph{
 public:
+  Graph();
   //Intoarce o directie in care sa mearga sau
   //stop in cazulin care nodul curent a fost
   //complet explorat

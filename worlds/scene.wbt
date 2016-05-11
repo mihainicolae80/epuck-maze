@@ -5,6 +5,7 @@ WorldInfo {
     "Author: first name last name <e-mail>"
     "Date: DD MMM YYYY"
   ]
+  runRealTime TRUE
 }
 Viewpoint {
   orientation 0.915363 0.401812 0.025646 5.50702

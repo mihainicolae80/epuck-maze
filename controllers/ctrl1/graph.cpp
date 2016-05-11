@@ -15,6 +15,7 @@ dir oposite_dir(dir direction){
 return DIR_NONE;
 }
 
+Node::Node(){}
 
 Node::Node(int x, int y){
   this->x = x;
@@ -40,6 +41,8 @@ Node* Graph::on_intersection(int x, int y,dir direction,bool opennorth,bool open
   std::list<Node*>::iterator it;
   cnode = is_node_arround(x,y);
 
+  std::cout<<"ORIENTATION="<<direction<<std::endl;
+
   //Daca este o intersectie noua
   if(cnode == NULL){
     std::cout << "Intersectie noua x="<<x<<"y="<<y<< std::endl;
@@ -51,16 +54,20 @@ Node* Graph::on_intersection(int x, int y,dir direction,bool opennorth,bool open
     newnode.open_on_dir[DIR_SOUTH] = opensouth;
     newnode.open_on_dir[DIR_EAST]  = openeast;
     newnode.open_on_dir[DIR_WEST]  = openwest;
+    newnode.visited_on_dir[DIR_NORTH] = false;
+    newnode.visited_on_dir[DIR_SOUTH] = false;
+    newnode.visited_on_dir[DIR_WEST]  = false;
+    newnode.visited_on_dir[DIR_EAST]  = false;
     newnode.visited_on_dir[oposite_dir(direction)] = true;
 
     //Adauga Nodul
     allnodes.push_back(newnode);
 
     if(lastnode != NULL){
-      lastnode->nighbours.push_back(&allnodes.back());
-      allnodes.back().nighbours.push_back(lastnode);
+      lastnode->neighbours.push_back(&allnodes.back());
+      allnodes.back().neighbours.push_back(lastnode);
 
-      lastnode.visited_on_dir[direction] = true;
+      lastnode->visited_on_dir[direction] = true;
     }
 
     cnode = &allnodes.back();
@@ -77,12 +84,12 @@ Node* Graph::on_intersection(int x, int y,dir direction,bool opennorth,bool open
       //daca nodul curent nu este in lista vecinilor
       //lui lastnode
       bool gasit = false;
-      for(it = lastnode->nighbours.begin();
-          it != lastnode->nighbours.end();
+      for(it = lastnode->neighbours.begin();
+          it != lastnode->neighbours.end();
           it++ ){
 
           //S-a gasit nodul in lista vecinilor
-          if((*it)->nr == nr){
+          if((*it)->nr == lastnode->nr){
             gasit = true;
             break;
           }
@@ -91,18 +98,18 @@ Node* Graph::on_intersection(int x, int y,dir direction,bool opennorth,bool open
       //Daca nodul vechi nu il avea in lista vecinilor
       //pe cel nou
       if(!gasit){
-        lastnode->push_back(cnode);
+        lastnode->neighbours.push_back(cnode);
       }
 
       gasit = false;
 
       //Daca nodul anterior nu este in lista vecinilor nodului curent
-      for(it = cnode->nighbours.begin();
-          it != cnode->nighbours.end();
+      for(it = cnode->neighbours.begin();
+          it != cnode->neighbours.end();
           it++ ){
 
           //S-a gasit nodul in lista vecinilor
-          if((*it)->nr == nr){
+          if((*it)->nr == cnode->nr){
             gasit = true;
             break;
           }
@@ -120,13 +127,13 @@ Node* Graph::on_intersection(int x, int y,dir direction,bool opennorth,bool open
 }
 
 Node* Graph::is_node_arround(int x,int y){
-  std::list<Node*>::iterator it;
+  std::list<Node>::iterator it;
 
   for(it = allnodes.begin(); it != allnodes.end(); it++){
-    if(x > (*(*it)).x - SEEK_NODE_DIST && x < (*(*it)).x + SEEK_NODE_DIST
-       && y > (*(*it)).y - SEEK_NODE_DIST && y < (*(*it)).y + SEEK_NODE_DIST){
+    if(x > (*it).x - SEEK_NODE_DIST && x < (*it).x + SEEK_NODE_DIST
+       && y > (*it).y - SEEK_NODE_DIST && y < (*it).y + SEEK_NODE_DIST){
 
-         return (*it);
+         return &(*it);
     }
   }
   return NULL;
