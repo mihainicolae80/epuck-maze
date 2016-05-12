@@ -34,6 +34,7 @@ Node::Node(int x, int y){
 
 Graph::Graph(){
   nodecount = 0;
+  lastnode = NULL; 
 }
 
 Node* Graph::on_intersection(int x, int y,dir direction,bool opennorth,bool opensouth,bool openeast, bool openwest){
@@ -63,8 +64,12 @@ Node* Graph::on_intersection(int x, int y,dir direction,bool opennorth,bool open
     //Adauga Nodul
     allnodes.push_back(newnode);
 
+    std::cout<<"a"<<std::endl;
+
     if(lastnode != NULL){
+      std::cout<<"b"<<std::endl;
       lastnode->neighbours.push_back(&allnodes.back());
+      std::cout<<"c"<<std::endl;
       allnodes.back().neighbours.push_back(lastnode);
 
       lastnode->visited_on_dir[direction] = true;

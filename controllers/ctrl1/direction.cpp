@@ -114,6 +114,7 @@ DIRECTION::DIRECTION(){
   diff_wheels.setEncoders(0,0);
 
 	orientation = DIR_NORTH;
+	old_orientation = DIR_NORTH;
 
 	ve_node_to_node.reset(diff_wheels);
 
@@ -359,7 +360,15 @@ void DIRECTION::run(){
 			total_delta_right = direction_rotate*ROTATE_SPEED -BASE_SPEED;
 
 		}
-		if( abs(ve_rotate.get_right(diff_wheels)) >= times_rotate * ROTATE_VAL ){
+		else{
+			switch_state(STATE_MOVE_TO_CORIDOR);
+		}
+
+
+		if((abs(ve_rotate.get_right(diff_wheels)) >= ROTATE_VAL
+			  && times_rotate  == 1)
+		||((abs(ve_rotate.get_right(diff_wheels)) >= ROTATE_VAL_180
+		    && times_rotate  == 2))){
 				switch_state(STATE_MOVE_TO_CORIDOR);
 		}
 	}
@@ -457,6 +466,7 @@ void DIRECTION::run(){
 		std::cout<<"cnode_east_viz="<<curr_node->visited_on_dir[DIR_EAST]<<std::endl;
 		std::cout<<"cnode_west_viz="<<curr_node->visited_on_dir[DIR_WEST]<<std::endl;
 
+		old_orientation = orientation;
 
 		//Pregateste o decizie dupa semnalare
 		if(curr_node->open_on_dir[DIR_NORTH]
@@ -540,53 +550,80 @@ void DIRECTION::run(){
 			 curr_node->visited_on_dir[DIR_WEST]
 		*/
 
-
 		if(curr_node != NULL){
 
+			//Determina valorile relative lalabirint
 
-			if(curr_node->open_on_dir[DIR_NORTH]
-			&& !curr_node->visited_on_dir[DIR_NORTH]){
+			dir abs_north,abs_south,abs_east,abs_west;
+
+			if(old_orientation == DIR_NORTH){
+				abs_north = DIR_NORTH;
+				abs_south = DIR_SOUTH;
+				abs_east  = DIR_EAST;
+				abs_west  = DIR_WEST;
+			}
+			else if(old_orientation == DIR_SOUTH){
+				abs_north = DIR_SOUTH;
+				abs_south = DIR_NORTH;
+				abs_east  = DIR_WEST;
+				abs_west  = DIR_EAST;
+			}
+			else if(old_orientation == DIR_EAST){
+				abs_north = DIR_EAST;
+				abs_south = DIR_WEST;
+				abs_east  = DIR_SOUTH;
+				abs_west  = DIR_NORTH;
+			}
+			else if(old_orientation == DIR_WEST){
+				abs_north = DIR_WEST;
+				abs_south = DIR_EAST;
+				abs_east  = DIR_NORTH;
+				abs_west  = DIR_SOUTH;
+			}
+
+			if(curr_node->open_on_dir[abs_north]
+			&& !curr_node->visited_on_dir[abs_north]){
 
 				if(leds_on) led[0]->set(1);
 				else 			  led[0]->set(0);
 				//led[0]->set(1);
 			}
 			else
-			if(curr_node->open_on_dir[DIR_NORTH]){
+			if(curr_node->open_on_dir[abs_north]){
 				led[0]->set(1);
 			}
 
-			if(curr_node->open_on_dir[DIR_SOUTH]
-			&& !curr_node->visited_on_dir[DIR_SOUTH]){
+			if(curr_node->open_on_dir[abs_south]
+			&& !curr_node->visited_on_dir[abs_south]){
 				if(leds_on) led[4]->set(1);
 				else 			  led[4]->set(0);
 				//led[4]->set(1);
 			}
 			else
-			if(curr_node->open_on_dir[DIR_SOUTH]){
+			if(curr_node->open_on_dir[abs_south]){
 				led[4]->set(1);
 			}
 
-			if(curr_node->open_on_dir[DIR_EAST]
-			&& !curr_node->visited_on_dir[DIR_EAST]){
+			if(curr_node->open_on_dir[abs_east]
+			&& !curr_node->visited_on_dir[abs_east]){
 				if(leds_on) led[2]->set(1);
 				else 			  led[2]->set(0);
 				//led[2]->set(1);
 			}
 			else
-			if(curr_node->open_on_dir[DIR_EAST]){
+			if(curr_node->open_on_dir[abs_east]){
 				led[2]->set(1);
 			}
 
 
-			if(curr_node->open_on_dir[DIR_WEST]
-			&& !curr_node->visited_on_dir[DIR_WEST]){
+			if(curr_node->open_on_dir[abs_west]
+			&& !curr_node->visited_on_dir[abs_west]){
 				if(leds_on) led[6]->set(1);
 				else 			  led[6]->set(0);
 				//led[6]->set(1);
 			}
 			else
-			if(curr_node->open_on_dir[DIR_WEST]){
+			if(curr_node->open_on_dir[abs_west]){
 				led[6]->set(1);
 			}
 
@@ -597,9 +634,15 @@ void DIRECTION::run(){
 
 		//Daca a stat in aceasta stare 3 secunde
 		if(time(NULL) - timer >= 3){
+
+			std::cout << "Time to switch\n" << std::endl;
+
 			set_all_leds_off();//TODO~mod
 
 			switch_state(STATE_ROTATE);
+		}
+		else{
+			std::cout << "time_diff="<< time(NULL) - timer << std::endl;
 		}
 
 		if(time(NULL) - timer_blink_led >= 1 ){
@@ -695,6 +738,7 @@ void DIRECTION::switch_state(Machine_States next_state){
 	}
 	else if(next_state == STATE_ROTATE){
 		ve_rotate.reset(diff_wheels);
+		std::cout<<"next_state=STATE_ROTATE\n";
 	}
 	else if(next_state == STATE_STOP){
 		std::cout<<"next_state=STATE_STOP\n";

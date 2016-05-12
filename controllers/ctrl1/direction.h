@@ -17,19 +17,20 @@
 #define DS_TRASHOLD_BIG   1.1
 #define DS_ROTATE180_TRIGGER 1.5
 
-#define ROTATE_VAL 300
+#define ROTATE_VAL 250
+#define ROTATE_VAL_180 600
 #define ROTATE_SPEED 400
 
-#define DIR_CLK 1
-#define DIR_CONTCLK (-1)
+#define DIR_CLK    (-1)
+#define DIR_CONTCLK 1
 
 #define WH_C_10   	   100//270 //0.09
 #define WH_C_45        100//270 //0.07
 #define WH_C_90        100//270 //0.07
 
-#define WR_C_10   	   50//150//390 //0.09
-#define WR_C_45        50//150//390 //0.07
-#define WR_C_90        50//150//390 //0.07
+#define WR_C_10   	   60//150//390 //0.09
+#define WR_C_45        60//150//390 //0.07
+#define WR_C_90        60//150//390 //0.07
 
 //Turnaround Module Constants
 #define TA_STATE_DONOTHING 0
@@ -37,8 +38,8 @@
 #define TA_STATE_ROTATE    2
 
 #define CTOI_TRIGGER  50
-#define CTOI_DISTANCE 130 //200
-#define ITOC_DISTANCE 300 //500
+#define CTOI_DISTANCE 210 //200
+#define ITOC_DISTANCE 380 //500
 
 #define ANGLE_0   0
 #define ANGLE_90  1
@@ -48,7 +49,7 @@
 
 using namespace webots;
 
-#define BASE_SPEED    300
+#define BASE_SPEED    500//300
 
 int constrain(int x);
 int get_rotate_direction(int curr, int goal);
@@ -108,6 +109,7 @@ private:
 	Graph graph;
 	int x, y;
 	dir orientation;
+	dir old_orientation;
 	Node *curr_node;
 	//States
 	Machine_States curr_state;
