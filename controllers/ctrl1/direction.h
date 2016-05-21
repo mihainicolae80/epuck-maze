@@ -15,22 +15,34 @@
 #define MAX_VAL       	  3900
 #define DS_TRASHOLD   		0.0
 #define DS_TRASHOLD_BIG   1.1
+#define DS_TRASHOLD_BIG2   0.35//0.45
 #define DS_ROTATE180_TRIGGER 1.5
 
 #define ROTATE_VAL 250
-#define ROTATE_VAL_180 600
+#define ROTATE_VAL_180 580
 #define ROTATE_SPEED 400
 
 #define DIR_CLK    (-1)
 #define DIR_CONTCLK 1
 
-#define WH_C_10   	   100//270 //0.09
-#define WH_C_45        100//270 //0.07
-#define WH_C_90        100//270 //0.07
+//xxxxxxxxxxxxxxxxxxxxxxx
+ #define WH_C_10   	   0//270 //0.09
+ #define WH_C_45        20//270 //0.07
+ #define WH_C_90        400//270 //0.07
+//xxxxxxxxxxxxxxxxxxxxxxxx
 
-#define WR_C_10   	   60//150//390 //0.09
-#define WR_C_45        60//150//390 //0.07
-#define WR_C_90        60//150//390 //0.07
+#define WR_C_10   	   20//150//390 //0.09
+#define WR_C_45        110//60//150//390 //0.07
+#define WR_C_90        120//70//150//390 //0.07
+
+#define WR_CAUX_10   	   50//150//390 //0.09
+#define WR_CAUX_45       50//150//390 //0.07
+#define WR_CAUX_90       50//150//390 //0.07
+
+#define WR_CAUX2_10   	  700//150//390 //0.09
+#define WR_CAUX2_45       -10//150//390 //0.07
+#define WR_CAUX2_90       -10//150//390 //0.07
+
 
 //Turnaround Module Constants
 #define TA_STATE_DONOTHING 0
@@ -38,8 +50,8 @@
 #define TA_STATE_ROTATE    2
 
 #define CTOI_TRIGGER  50
-#define CTOI_DISTANCE 210 //200
-#define ITOC_DISTANCE 380 //500
+#define CTOI_DISTANCE 400 //210 200
+#define ITOC_DISTANCE 300 //500
 
 #define ANGLE_0   0
 #define ANGLE_90  1
@@ -94,6 +106,9 @@ public:
 											bool &openeast, bool &openwest);
 	void wall_hugger();
 	void wall_repeller();
+	void wall_repeller_noenc();
+	void wall_repeller_aux();
+	void wall_repeller_aux2();
 	bool turnarround();
 
 	//State select and apply

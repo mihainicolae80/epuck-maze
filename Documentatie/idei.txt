@@ -1,0 +1,49 @@
+1. Descriere:
+
+2. Importanta: 
+
+3. Detalii tehnice:
+- ce program foloseste
+- detalii despre modul de functionare
+    + functia de parcurgere a labirintului
+    + functia de mapare
+
+1. DESCRIERE
+Robotul E-puck parcurge un labirint, in scopul de a crea o harta, folosindu-se de punctele cardinale: nord, sud, est, vest, pornind de la premisa ca este initial orientat catre nord. Aceste detaliu este relevant doar pentru a explica modul intern de functionare, neafectand rezultatul cosiderabil final.
+
+2. Obiectiv
+	Echipa noastra s-a propus realizarea unui robot care mapeaza interiorul unei cladiri daramte, pentru a determina drumurile accesibile dinauntru, precumsi supravietuitori. 
+
+3.Robotul ales: 
+	Pentru o prima implementare am ales utilizarea unui robot e-puck, deoarece are dimensiuni reduse si este dotat cu senzori de distanta si encodere.
+
+4.Implementarea Algoritmului
+	1. masina cu stari finite
+	2. functioneaza transformand coridoarele in muchii si intersectiile, precum si fundaturile in noduri ale grafului.
+
+{Avand dimensiuni reduse, robotul poate fi folosit in descoperirea interiorului unei cladiri distruse, in scopul cautarii de supravietuitori. Functia de mapare ajuta la localizarea exacta a victimelor.}
+
+3. DETALII TEHNICE
+ Limbajul in care am scris codul este C++;
+	Programul a fost scris in C++ sirulatcu ajutorul simulatorului Webots.
+
+   FUNCTIA DE PARCURGERE
+(Automat cu stari finite)
+Parcurgerea este realizata prin mai multe STARI :
+- STAREA DE MERS PE UN CORIDOR 
+		 - Citeste datele de la senzorii de distanta si le trimite unui controller proportional 
+		    care mentine o distanta constanta intre peretele din stanga si cel din dreapta.
+         - se tine pe mijloc prin incercarea de a se indeparta de perete
+- STAREA Deplasare catre intersectie 
+         - Se intra in aceasta stare cand nu se detecteaza perete in stanga sau in dreapta o anumita distanta.
+		 - Robotul merge drept inainte fara a citi date de la senzori pentru a ajunge in mijlocul intersectiei.
+- STAREA DE INTERSECTIE
+         - ia decizia de a merge intr-o parte, bazandu-se pe directiile in care a mers deja 
+         - directiile in care a mers deja, vor fi retinute pe baza coordonatelor: nord, sud, est, vest
+- prin Led-uri se vor semnala directiile in care se poate merge 
+
+   FUNCTIA DE MAPARE
+- la pornire, orientarea va fi catre nord
+- o intersectie va fi considerata un nod 
+- distanta de la un nod la altul va fi calculata bazandu-se pe encodere
+- pentru gasirea celui mai scurt drum catre un nod, am folosit algoritmul Dijkstra 

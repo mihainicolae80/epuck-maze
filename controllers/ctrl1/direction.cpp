@@ -236,9 +236,10 @@ void DIRECTION::wall_repeller(){
 	if(ds_left_90 > DS_TRASHOLD_BIG)
 		wr_delta += WR_C_90 * ds_left_90;
 
-	if(ds_left_10 > DS_TRASHOLD_BIG
-	|| ds_left_45 > DS_TRASHOLD_BIG
-	|| ds_left_90 > DS_TRASHOLD_BIG){
+	if(ds_left_45 > DS_TRASHOLD_BIG2
+	// || ds_left_45 > DS_TRASHOLD_BIG
+	// || ds_left_90 > DS_TRASHOLD_BIG
+){
 		wall_on_left = true;
 	}
 
@@ -258,9 +259,10 @@ void DIRECTION::wall_repeller(){
  if(ds_right_90 > DS_TRASHOLD_BIG)
 	 wr_delta -= WR_C_90 * ds_right_90;
 
-	 if(ds_right_10 > DS_TRASHOLD_BIG
-	 || ds_right_45 > DS_TRASHOLD_BIG
-   || ds_right_90 > DS_TRASHOLD_BIG){
+	 if(ds_right_45 > DS_TRASHOLD_BIG2
+	//  || ds_right_45 > DS_TRASHOLD_BIG
+  //  || ds_right_90 > DS_TRASHOLD_BIG
+ ){
 	 		wall_on_right = true;
 	 	}
 
@@ -271,8 +273,8 @@ void DIRECTION::wall_repeller(){
 		//if(abs(maxleft-maxright) > 0.4){
 				wr_delta = 0;
 
-				if(!wall_on_left) std::cout << "no_wall_left" << std::endl;
-				if(!wall_on_right) std::cout << "no_wall_right" << std::endl;
+				//if(!wall_on_left) std::cout << "no_wall_left" << std::endl;
+				//if(!wall_on_right) std::cout << "no_wall_right" << std::endl;
 
 				if(ve_aux.get_left(diff_wheels) > CTOI_TRIGGER
 					 && ve_aux.get_right(diff_wheels) > CTOI_TRIGGER
@@ -286,44 +288,78 @@ void DIRECTION::wall_repeller(){
 			ve_aux.reset(diff_wheels);
 		}
 }
-/*
-bool DIRECTION::turnarround(){
 
-	static int state = TA_STATE_DONOTHING;
 
-	if(state == TA_STATE_DONOTHING
-	&& ds_left_10 > ROTATE180_TRASHOLD
-	&& ds_right_10 > ROTATE180_TRASHOLD ){
-		state = TA_STATE_BACKOFF;
-	}
+void DIRECTION::wall_repeller_noenc(){
 
-	if(state == TA_STATE_BACKOFF){
+	wr_delta = 0;
 
-		std::cout<<"In backoff state\n";
-		//Retine val de pe encodere
-		//suprascrie viteza cu una negativa si egala pe ambele roti
-		//Cand (val_noua_encodere - val_veche_end > const)
-		//state = ROTATE
-	}
-	else
-	if(state == TA_STATE_ROTATE){
-		//retine val de pe encodere
-		//seteaza valori egale dar de sens opus pe roti
-		//Cand (val_noua_encodere - val_veche_end > const)
-		//state == DONOTHING
-	}
+	if(ds_left_10 > DS_TRASHOLD_BIG)
+		wr_delta += WR_C_10 * ds_left_10;
+	if(ds_left_45 > DS_TRASHOLD_BIG)
+		wr_delta += WR_C_45 * ds_left_45;
+	if(ds_left_90 > DS_TRASHOLD_BIG)
+		wr_delta += WR_C_90 * ds_left_90;
 
-	return false;
+ if(ds_right_10 > DS_TRASHOLD_BIG)
+	 wr_delta -= WR_C_10 * ds_right_10;
+ if(ds_right_45 > DS_TRASHOLD_BIG)
+	 wr_delta -= WR_C_45 * ds_right_45;
+ if(ds_right_90 > DS_TRASHOLD_BIG)
+	 wr_delta -= WR_C_90 * ds_right_90;
+
 }
 
-*/
+void DIRECTION::wall_repeller_aux(){
+
+	wr_delta = 0;
+
+	if(ds_left_10 > DS_TRASHOLD_BIG)
+		wr_delta -= WR_CAUX_10 * ds_left_10;
+	if(ds_left_45 > DS_TRASHOLD_BIG)
+		wr_delta -= WR_CAUX_45 * ds_left_45;
+	if(ds_left_90 > DS_TRASHOLD_BIG)
+		wr_delta -= WR_CAUX_90 * ds_left_90;
+
+
+	double maxleft = ds_left_10 > ds_left_45 ? ds_left_10 : ds_left_45;
+	maxleft = maxleft > ds_left_90 ? maxleft : ds_left_90;
+
+ if(ds_right_10 > DS_TRASHOLD_BIG)
+	 wr_delta += WR_CAUX_10 * ds_right_10;
+ if(ds_right_45 > DS_TRASHOLD_BIG)
+	 wr_delta += WR_CAUX_45 * ds_right_45;
+ if(ds_right_90 > DS_TRASHOLD_BIG)
+	 wr_delta += WR_CAUX_90 * ds_right_90;
+}
+
+void DIRECTION::wall_repeller_aux2(){
+
+	wr_delta = 0;
+
+	if(ds_left_10 > DS_TRASHOLD_BIG)
+		wr_delta += WR_CAUX2_10 * ds_left_10;
+	if(ds_left_45 > DS_TRASHOLD_BIG)
+		wr_delta += WR_CAUX2_45 * ds_left_45;
+	if(ds_left_90 > DS_TRASHOLD_BIG)
+		wr_delta += WR_CAUX2_90 * ds_left_90;
+
+
+ if(ds_right_10 > DS_TRASHOLD_BIG)
+	 wr_delta -= WR_CAUX2_10 * ds_right_10;
+ if(ds_right_45 > DS_TRASHOLD_BIG)
+	 wr_delta -= WR_CAUX2_45 * ds_right_45;
+ if(ds_right_90 > DS_TRASHOLD_BIG)
+	 wr_delta -= WR_CAUX2_90 * ds_right_90;
+
+}
 
 void DIRECTION::run(){
 
 	reset_modifiers();
 
 	//State machine
-	if(curr_state == STATE_FOLLOW_CORIDOR){
+ 	if(     curr_state == STATE_FOLLOW_CORIDOR){
 
 		update_ds();
 		wall_repeller();
@@ -343,14 +379,54 @@ void DIRECTION::run(){
 		total_delta_left  =  + wr_delta;
 	}
 	else if(curr_state == STATE_MOVE_TO_INTERSECT_CENTER){
-		total_delta_left  = 0;
-		total_delta_right = 0;
+
+		// update_ds();
+		//
+		// wall_repeller_aux();
+		//
+		// total_delta_right =  - wr_delta;
+		// total_delta_left  =  + wr_delta;
+
+
+		total_delta_right =  0;
+		total_delta_left  =  0;
 
 		if(ve_aux.get_left(diff_wheels) > CTOI_DISTANCE
 		   || ve_aux.get_right(diff_wheels) > CTOI_DISTANCE){
 
 			 switch_state(STATE_INTERSECTION);
 
+		 }
+	}
+	else if(curr_state == STATE_MOVE_TO_CORIDOR){
+
+		//  update_ds();
+		//  wall_repeller_noenc();
+		//  total_delta_right =  - wr_delta;
+ 	// 	 total_delta_left  =  + wr_delta;
+
+	total_delta_left  = 0;
+	total_delta_right = 0;
+
+		//
+		 //wall_repeller_aux2();
+		//
+		// total_delta_right =  - wr_delta;
+		// total_delta_left  =  + wr_delta;
+
+
+
+
+		//
+		// std::cout << "abs_left=" << diff_wheels.getLeftEncoder() << std::endl;
+		// std::cout << "abs_right=" << diff_wheels.getRightEncoder() << std::endl;
+		// std::cout << "left=" << ve_aux.get_left(diff_wheels) << std::endl;
+		// std::cout << "right=" << ve_aux.get_right(diff_wheels) << std::endl;
+
+
+		if(ve_aux.get_left(diff_wheels) > ITOC_DISTANCE
+		   || ve_aux.get_right(diff_wheels) > ITOC_DISTANCE ){
+			 switch_state(STATE_FOLLOW_CORIDOR);
 		 }
 	}
 	else if(curr_state == STATE_ROTATE){
@@ -377,23 +453,7 @@ void DIRECTION::run(){
 		total_delta_right = -BASE_SPEED;
 		//TODO Mai simplu daca se cal viteza direct?
 	}
-	else if(curr_state == STATE_MOVE_TO_CORIDOR){
-		//std::cout << "state=blind_to_coridor" << std::endl;
-		total_delta_left  = 0;
-		total_delta_right = 0;
 
-		//
-		// std::cout << "abs_left=" << diff_wheels.getLeftEncoder() << std::endl;
-		// std::cout << "abs_right=" << diff_wheels.getRightEncoder() << std::endl;
-		// std::cout << "left=" << ve_aux.get_left(diff_wheels) << std::endl;
-		// std::cout << "right=" << ve_aux.get_right(diff_wheels) << std::endl;
-
-
-		if(ve_aux.get_left(diff_wheels) > ITOC_DISTANCE
-		   || ve_aux.get_right(diff_wheels) > ITOC_DISTANCE ){
-			 switch_state(STATE_FOLLOW_CORIDOR);
-		 }
-	}
 
 
 
@@ -434,9 +494,6 @@ void DIRECTION::run(){
 		else if(orientation == DIR_WEST){
 			x -= avg_dist;
 		}
-
-		//Reset encodere virtuale
-		ve_node_to_node.reset(diff_wheels);
 
 		//TODO Detectare daca un drum este deschis
 		//Analizeaza pozitia curenta
@@ -524,13 +581,13 @@ void DIRECTION::run(){
 			//directile, se merge la cel mai apropiat nod care
 			//nu a fost explorat complet
 
-			std::cout<<"Current node explored on all sides\n";
+			std::cout<<"No place to go\n";
 			switch_state(STATE_STOP);
 			return;
 		}
 
 
-		std::cout<<"Willgo="<<orientation;
+		//std::cout<<"Willgo="<<orientation;
 
 		//Semnalizeaza directile in care poate merge
 		switch_state(STATE_SIGNAL);
@@ -581,48 +638,48 @@ void DIRECTION::run(){
 				abs_west  = DIR_SOUTH;
 			}
 
-			if(curr_node->open_on_dir[abs_north]
-			&& !curr_node->visited_on_dir[abs_north]){
-
-				if(leds_on) led[0]->set(1);
-				else 			  led[0]->set(0);
-				//led[0]->set(1);
-			}
-			else
+			// if(curr_node->open_on_dir[abs_north]
+			// && !curr_node->visited_on_dir[abs_north]){
+			//
+			// 	if(leds_on) led[0]->set(1);
+			// 	else 			  led[0]->set(0);
+			// 	//led[0]->set(1);
+			// }
+			// else
 			if(curr_node->open_on_dir[abs_north]){
 				led[0]->set(1);
 			}
 
-			if(curr_node->open_on_dir[abs_south]
-			&& !curr_node->visited_on_dir[abs_south]){
-				if(leds_on) led[4]->set(1);
-				else 			  led[4]->set(0);
-				//led[4]->set(1);
-			}
-			else
+			// if(curr_node->open_on_dir[abs_south]
+			// && !curr_node->visited_on_dir[abs_south]){
+			// 	if(leds_on) led[4]->set(1);
+			// 	else 			  led[4]->set(0);
+			// 	//led[4]->set(1);
+			// }
+			// else
 			if(curr_node->open_on_dir[abs_south]){
 				led[4]->set(1);
 			}
 
-			if(curr_node->open_on_dir[abs_east]
-			&& !curr_node->visited_on_dir[abs_east]){
-				if(leds_on) led[2]->set(1);
-				else 			  led[2]->set(0);
-				//led[2]->set(1);
-			}
-			else
+			// if(curr_node->open_on_dir[abs_east]
+			// && !curr_node->visited_on_dir[abs_east]){
+			// 	if(leds_on) led[2]->set(1);
+			// 	else 			  led[2]->set(0);
+			// 	//led[2]->set(1);
+			// }
+			// else
 			if(curr_node->open_on_dir[abs_east]){
 				led[2]->set(1);
 			}
 
 
-			if(curr_node->open_on_dir[abs_west]
-			&& !curr_node->visited_on_dir[abs_west]){
-				if(leds_on) led[6]->set(1);
-				else 			  led[6]->set(0);
-				//led[6]->set(1);
-			}
-			else
+			// if(curr_node->open_on_dir[abs_west]
+			// && !curr_node->visited_on_dir[abs_west]){
+			// 	if(leds_on) led[6]->set(1);
+			// 	else 			  led[6]->set(0);
+			// 	//led[6]->set(1);
+			// }
+			// else
 			if(curr_node->open_on_dir[abs_west]){
 				led[6]->set(1);
 			}
@@ -633,22 +690,22 @@ void DIRECTION::run(){
 		}
 
 		//Daca a stat in aceasta stare 3 secunde
-		if(time(NULL) - timer >= 3){
+		if(time(NULL) - timer >= 1){
 
-			std::cout << "Time to switch\n" << std::endl;
+			//std::cout << "Time to switch\n" << std::endl;
 
 			set_all_leds_off();//TODO~mod
 
 			switch_state(STATE_ROTATE);
 		}
 		else{
-			std::cout << "time_diff="<< time(NULL) - timer << std::endl;
+			//std::cout << "time_diff="<< time(NULL) - timer << std::endl;
 		}
 
 		if(time(NULL) - timer_blink_led >= 1 ){
 			leds_on = !leds_on;
 			timer_blink_led = time(NULL);
-			std::cout<<"switching leds\n";
+			//std::cout<<"switching leds\n";
 		}
 
 }
@@ -720,16 +777,19 @@ void DIRECTION::switch_state(Machine_States next_state){
 	ve_aux.reset(diff_wheels);
 
 	if(next_state ==STATE_FOLLOW_CORIDOR){
-		std::cout<<"next_state=STATE_FOLLOW_CORIDOR\n";
+		//std::cout<<"next_state=STATE_FOLLOW_CORIDOR\n";
 	}
 	else if(next_state ==STATE_MOVE_TO_INTERSECT_CENTER){
-		std::cout<<"next_state=STATE_MOVE_TO_INTERSECT_CENTER\n";
+		//std::cout<<"next_state=STATE_MOVE_TO_INTERSECT_CENTER\n";
 	}
 	else if(next_state == STATE_MOVE_TO_CORIDOR){
-		std::cout<<"next_state=STATE_MOVE_TO_CORIDOR\n";
+		//Reset encodere virtuale
+		ve_node_to_node.reset(diff_wheels);
+
+		//std::cout<<"next_state=STATE_MOVE_TO_CORIDOR\n";
 	}
 	else if(next_state == STATE_INTERSECTION){
-		std::cout<<"next_state=STATE_INTERSECTION\n";
+		//std::cout<<"next_state=STATE_INTERSECTION\n";
 	}
 	else if(next_state == STATE_SIGNAL){
 		//Reseteaza timer
@@ -738,9 +798,9 @@ void DIRECTION::switch_state(Machine_States next_state){
 	}
 	else if(next_state == STATE_ROTATE){
 		ve_rotate.reset(diff_wheels);
-		std::cout<<"next_state=STATE_ROTATE\n";
+		//std::cout<<"next_state=STATE_ROTATE\n";
 	}
 	else if(next_state == STATE_STOP){
-		std::cout<<"next_state=STATE_STOP\n";
+		//std::cout<<"next_state=STATE_STOP\n";
 	}
 }
